@@ -8,15 +8,24 @@ const hre = require("hardhat");
 
 async function main() {
 
-  //const contract = await hre.ethers.deployContract("Certificate");
-  const contract = await hre.ethers.getContractFactory("Certificate");
-  const contractInstance = await contract.deploy();
+  let deployer;
+  [deployer] = await hre.ethers.getSigners()
+  const contract = await hre.ethers.getContractFactory("Certificate")
+  const contractInstance = await contract.deploy(deployer,"https://ipfs.io/ipfs/QmcqWehqa5zSZPa9ZPPFPELmq4WAMDqzVLRviPA9Q8BgB4/")
   const contractAddress = await contractInstance.getAddress()
 
   console.log(
     "Certificate Contract Address: ",
     contractAddress
   );
+  
+
+  await contractInstance.addStudentInfo(15600,deployer.address,"IT","3.62")
+  await contractInstance.mint()
+
+  const result = await contractInstance.tokenURI(15600)
+
+  console.log(result)
 }
 
 // We recommend this pattern to be able to use async/await everywhere

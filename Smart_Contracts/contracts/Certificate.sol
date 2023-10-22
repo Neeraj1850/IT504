@@ -3,24 +3,20 @@ pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract Certificate is ERC721, Ownable {
-    constructor(address _adminAddress) ERC721("Certificate", "CRTF") {
-        adminAddress = _adminAddress;
-    }
-
-    /*
-     TODO
-     1. Add nft properties
-     2. Admin modifier
-     3. Change Admin function
-     4. 
-
-    */
+    using Strings for uint256;
 
     address public adminAddress;
     uint256 public totalSupply;
     string public baseURI;
+    string public baseExtension = ".json";
+
+    constructor(address _adminAddress, string memory _baseURI_) ERC721("Certificate", "CRTF") {
+        adminAddress = _adminAddress;
+        baseURI = _baseURI_;
+    }
 
     modifier onlyAdmin {
         require(msg.sender == adminAddress,"Caller is not Admin");
@@ -46,11 +42,13 @@ contract Certificate is ERC721, Ownable {
 
     mapping(address => StudentInfo) public studentInfo;
 
-    mapping(uint256 => string) public _tokenURI;
-
     function safeMint(address to, uint256 tokenId) public onlyAdmin {
         _safeMint(to, tokenId);
 
+    }
+
+    function setBaseURI(string memory _newBaseURI) public onlyAdmin {
+        baseURI = _newBaseURI;
     }
 
     function changeAdmin (address _newAdmin) external onlyAdmin {
@@ -88,7 +86,6 @@ contract Certificate is ERC721, Ownable {
         totalSupply += 1;
         isMinted[msg.sender] = true;
 
-
         return true;
 
     }
@@ -101,14 +98,27 @@ contract Certificate is ERC721, Ownable {
         returns (string memory) 
     {
         require(
-            _exists(tokenId),
+            _exists(tokenID),
             "ERC721Metadata: URI query for nonexistent token"
         );
 
-        return string(abi.encodePacked(baseURI))
+        string memory currentBaseURI = _baseURI();
 
+        return
+            bytes(currentBaseURI).length > 0
+                ? string(
+                    abi.encodePacked(
+                        currentBaseURI,
+                        tokenID.toString(),
+                        baseExtension
+                    )
+                )
+                : "";
 
+    }
 
+    function _baseURI() internal view virtual override returns (string memory) {
+        return baseURI;
     }
 
 
