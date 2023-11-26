@@ -1,17 +1,12 @@
 const fs = require('fs');
 const path = require('path');
+require("dotenv").config()
 
 // Adjusted to use an absolute path based on your project root directory
 const imageDir = path.join(__dirname, '..', 'images'); 
 const outputDir = path.join(__dirname, '..', 'metadata'); 
 
-async function generateCid(filePath, ipfs) {
-    const content = fs.readFileSync(filePath);
-    const { cid } = await ipfs.add(content);
-    return cid.toString();
-}
-
-async function main() {
+async function metadata() {
     // Ensure the 'images' directory exists
     if (!fs.existsSync(imageDir)) {
         console.error(`Error: Directory ${imageDir} does not exist.`);
@@ -32,13 +27,13 @@ async function main() {
         const filepath = path.join(imageDir, filename);
         
         // Generate CID for the image
-        const cid = await generateCid(filepath, ipfs);
+        const cid = process.env.CID
 
         // Construct metadata object
         const metadata = {
             name: path.basename(filename, path.extname(filename)),
             description: `An image named ${filename}`,
-            image: `https://ipfs.io/ipfs/${cid}`
+            image: `https://${cid}.ipfs.dweb.link/${filename}`
         };
 
         // Save metadata to a JSON file
@@ -51,6 +46,4 @@ async function main() {
     await ipfs.stop();
 }
 
-main().catch(error => {
-    console.error("An error occurred:", error.message);
-});
+module.exports = {metadata}

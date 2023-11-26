@@ -16,6 +16,8 @@
     "@nomicfoundation/hardhat-toolbox": "^3.0.0",
     "@openzeppelin/contracts": "^4.9.3",
     "dotenv": "^16.3.1",
-    "ipfs-core": "^0.18.1"
+    "ethers": "^6.8.1",
+    "ipfs-core": "^0.18.1",
+    "ipfs-http-client": "^60.0.1"
   }
 }

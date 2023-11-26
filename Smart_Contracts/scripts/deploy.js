@@ -1,12 +1,14 @@
 const hre = require("hardhat");
+const { metadata } = require("./metadataGenerator");
 require('dotenv').config();
 
-async function main() {
+async function deployment() {
 
   let deployer;
-  [deployer] = await hre.ethers.getSigners()
+  [deployer, student1, student2, student3] = await hre.ethers.getSigners()
   const contract = await hre.ethers.getContractFactory("Certificate")
-  const contractInstance = await contract.deploy(deployer,process.env.IPFS_KEY)
+  await metadata()
+  const contractInstance = await contract.deploy(deployer, process.env.EMAIL, process.env.IPFS_KEY)
   const contractAddress = await contractInstance.getAddress()
 
   console.log(
@@ -14,18 +16,21 @@ async function main() {
     contractAddress
   );
   
+  //Adding Student Info
+  await contractInstance.batchAddStudentsInfo(
+    [15600,15700,15800],
+    ["IT","MISSM","MISSAM"],
+    ["1@gmail.com","2@gmail.com","3@gmail.com"],
+    ["3.62","3.7","3.9"]
+  )
 
-  await contractInstance.addStudentInfo(15600,deployer.address,"IT","3.62")
-  await contractInstance.mint()
+  return {
+    contractInstance,
+    deployer, student1, student2, student3
+  }
 
-  const result = await contractInstance.tokenURI(15600)
-
-  console.log(result)
 }
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+deployment()
+
+//module.exports = {deployment}

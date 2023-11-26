@@ -9,13 +9,21 @@ contract Certificate is ERC721 {
     using Strings for uint256;
 
     address public adminAddress;
+    string public adminEmail;
     uint256 public totalSupply;
     uint256 public noOfStudents;
     string public baseURI;
     string public baseExtension = ".json";
 
-    constructor(address _adminAddress, string memory _baseURI_) ERC721("Certificate", "CRTF") {
+    constructor(
+        address _adminAddress, 
+        string memory _adminEmail, 
+        string memory _baseURI_
+        ) 
+        ERC721("Certificate", "CRTF") 
+    {
         adminAddress = _adminAddress;
+        adminEmail = _adminEmail; 
         baseURI = _baseURI_;
     }
 
@@ -136,6 +144,8 @@ contract Certificate is ERC721 {
             
             StudentInfo storage student = studentInfo[_studentEmails[i]];
             student.studentAddress = _studentAddresses[i];
+            studentIndex[noOfStudents] = student;
+            noOfStudents += 1; 
         }
     }
 
